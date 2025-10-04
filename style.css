@@ -190,6 +190,15 @@ body{
   .daily-section{order:2}
 }
 
+.sun-times {
+  display: flex;
+  justify-content: space-between;
+  color: #f9fafb;
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+
 select {
   background-color: #1e1e3f;
   color: #fff; 
