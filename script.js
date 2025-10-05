@@ -1,8 +1,5 @@
-/* ------------- CONFIG -------------- */
-/* Replace with your OpenWeather API key */
 const API_KEY = "1c258ee49ca8c8ecb7230904408d0817";
 
-/* Elements */
 const unitSelect = document.getElementById("unitSelect");
 const cityInput = document.getElementById("cityInput");
 const searchBtn = document.getElementById("searchBtn");
@@ -22,12 +19,10 @@ const dailyCards = document.getElementById("dailyCards");
 const daySelect = document.getElementById("daySelect");
 const hourlyList = document.getElementById("hourlyList");
 
-/* runtime state */
 let currentUnit = unitSelect.value || "metric";
 let forecastData = null;
 let availableDays = [];
 
-/* ---------- helpers ---------- */
 function toLocalDate(ts, tzOffsetSeconds = 0) {
   return new Date((ts + tzOffsetSeconds) * 1000);
 }
@@ -41,7 +36,7 @@ function iconUrl(icon) {
   return `https://openweathermap.org/img/wn/${icon}@2x.png`;
 }
 
-/* ---------- data processing ---------- */
+
 function groupForecastByDay(list, tzOffsetSeconds = 0) {
   const map = {};
   list.forEach(item => {
@@ -79,7 +74,6 @@ function getDailySummary(map, tzOffsetSeconds = 0) {
   return days;
 }
 
-/* ---------- UI renderers ---------- */
 function renderMainCard(cityObj, firstEntry) {
   const tz = cityObj.timezone || 0;
   cityName.textContent = `${cityObj.name}, ${cityObj.country}`;
@@ -94,7 +88,6 @@ function renderMainCard(cityObj, firstEntry) {
   const precipAmt = (firstEntry.rain && firstEntry.rain["3h"]) || (firstEntry.snow && firstEntry.snow["3h"]) || 0;
   precipText.textContent = `${precipAmt} mm`;
 
-  // 🌅 Sunrise & Sunset
   const sunrise = new Date(cityObj.sunrise * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   const sunset = new Date(cityObj.sunset * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   document.getElementById("sunriseText").textContent = `🌅 ${sunrise}`;
@@ -157,7 +150,54 @@ function renderHourly(dayIndex) {
   });
 }
 
-/* ---------- API + flow ---------- */
+
+let weeklyChart = null;
+function renderWeeklyChart(summaries) {
+  const ctx = document.getElementById("weeklyChart").getContext("2d");
+  const labels = summaries.map(s => s.label);
+  const tempsMax = summaries.map(s => s.max);
+  const tempsMin = summaries.map(s => s.min);
+
+  if (weeklyChart) weeklyChart.destroy();
+
+  weeklyChart = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels,
+      datasets: [
+        {
+          label: "Max Temp (°)",
+          data: tempsMax,
+          borderColor: "#ff6384",
+          backgroundColor: "rgba(255, 99, 132, 0.2)",
+          tension: 0.4,
+          fill: true
+        },
+        {
+          label: "Min Temp (°)",
+          data: tempsMin,
+          borderColor: "#36a2eb",
+          backgroundColor: "rgba(54, 162, 235, 0.2)",
+          tension: 0.4,
+          fill: true
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { labels: { color: "#fff", font: 13 } }
+      },
+      scales: {
+        x: { ticks: { color: "#fff" }, grid: { color: "rgba(255,255,255,0.1)" } },
+        y: { ticks: { color: "#fff" }, grid: { color: "rgba(255,255,255,0.1)", lineWidth: 1 } }
+      }
+    }
+  });
+}
+
+
 let forecastTimezone = 0;
 
 async function fetchForecastByCoords(lat, lon, unit = 'metric') {
@@ -184,6 +224,7 @@ async function loadForecast(data) {
   renderMainCard(data.city, data.list[0]);
   renderDailyCards(summaries);
   populateDaySelect(summaries);
+  renderWeeklyChart(summaries); // ✅ NEW LINE
 
   const defaultDay = summaries.length ? summaries[0].dayIndex : toLocalDate(Math.floor(Date.now() / 1000), forecastTimezone).getDay();
   renderHourly(defaultDay);
@@ -192,7 +233,7 @@ async function loadForecast(data) {
   if (selCard) selCard.classList.add('active');
 }
 
-/* ---------- events ---------- */
+
 searchBtn.addEventListener('click', async () => {
   const val = cityInput.value.trim();
   if (!val) return;
@@ -201,22 +242,15 @@ searchBtn.addEventListener('click', async () => {
     await loadForecast(data);
   } catch (e) {
     alert('City not found or API error');
-    console.error(e);
   }
 });
 
 unitSelect.addEventListener('change', async () => {
   currentUnit = unitSelect.value;
   const cityText = cityName.textContent.split(',')[0];
-  try {
-    if (cityText && cityText !== "Loading...") {
-      const data = await fetchForecastByCity(cityText, currentUnit);
-      await loadForecast(data);
-    } else {
-      await initByGeolocation();
-    }
-  } catch (e) {
-    console.error(e);
+  if (cityText && cityText !== "Loading...") {
+    const data = await fetchForecastByCity(cityText, currentUnit);
+    await loadForecast(data);
   }
 });
 
@@ -228,37 +262,28 @@ daySelect.addEventListener('change', () => {
   if (clicked) clicked.classList.add('active');
 });
 
-/* ---------- geolocation ---------- */
+
 async function initByGeolocation() {
   if (!navigator.geolocation) {
-    try {
-      const data = await fetchForecastByCity('Berlin', currentUnit);
-      await loadForecast(data);
-    } catch (e) { console.error(e); }
-    return;
+    const data = await fetchForecastByCity('Berlin', currentUnit);
+    return loadForecast(data);
   }
 
-  navigator.geolocation.getCurrentPosition(async (pos) => {
-    try {
-      const { latitude, longitude } = pos.coords;
-      const data = await fetchForecastByCoords(latitude, longitude, currentUnit);
-      await loadForecast(data);
-    } catch (e) { console.error(e); }
+  navigator.geolocation.getCurrentPosition(async pos => {
+    const { latitude, longitude } = pos.coords;
+    const data = await fetchForecastByCoords(latitude, longitude, currentUnit);
+    await loadForecast(data);
   }, async () => {
-    try {
-      const data = await fetchForecastByCity('Berlin', currentUnit);
-      await loadForecast(data);
-    } catch (e) { console.error(e); }
-  }, { maximumAge: 600000, timeout: 10000 });
+    const data = await fetchForecastByCity('Berlin', currentUnit);
+    await loadForecast(data);
+  });
 }
 
-/* ---------- start ---------- */
 window.addEventListener('load', () => {
   currentUnit = unitSelect.value || 'metric';
   initByGeolocation();
 });
 
-/* ---------- Chatbot ---------- */
 document.addEventListener("DOMContentLoaded", () => {
   const chatbotIcon = document.getElementById("chatbot-icon");
   const chatbotWindow = document.getElementById("chatbot-window");
@@ -315,9 +340,9 @@ async function generateBotReply(message) {
       const desc = data.weather[0].description;
       const temp = data.main.temp;
 
-      if (temp > 30) return `It's ${temp}°C and ${desc} in ${city}. Stay cool and hydrated 😎`;
+      if (temp > 30) return `It's ${temp}°C and ${desc} in ${city}. Stay cool 😎`;
       if (temp < 15) return `It's ${temp}°C and ${desc} in ${city}. You should wear something warm 🧥`;
-      return `In ${city}, it's ${temp}°C with ${desc}. A light outfit should do fine 👕`;
+      return `In ${city}, it's ${temp}°C with ${desc}.`;
     } catch {
       return "Sorry, I had trouble fetching the weather data.";
     }

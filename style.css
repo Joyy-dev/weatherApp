@@ -212,7 +212,6 @@ select option {
   color: #fff;
 }
 
-/* Chatbot container */
 #chatbot-container {
   position: fixed;
   bottom: 20px;
@@ -221,7 +220,6 @@ select option {
   font-family: 'Poppins', sans-serif;
 }
 
-/* Floating icon */
 #chatbot-icon {
   background: linear-gradient(135deg, #1e1e3f, #1e1e3f); /* blue → purple */
   color: white;
@@ -242,7 +240,6 @@ select option {
   box-shadow: 0 8px 25px rgba(99, 102, 241, 0.6);
 }
 
-/* Chat window */
 #chatbot-window {
   display: none;
   position: absolute;
@@ -259,7 +256,6 @@ select option {
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-/* Message area */
 #chatbot-messages {
   flex: 1;
   padding: 15px;
@@ -267,11 +263,10 @@ select option {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  /* background: #1e1e3f; */
   background: white;
 }
 
-/* Message bubbles */
+
 .chatbot-message {
   max-width: 80%;
   padding: 10px 14px;
@@ -281,7 +276,7 @@ select option {
   word-wrap: break-word;
 }
 
-/* Bot messages */
+
 .chatbot-message.bot {
   background-color: rgba(255, 255, 255, 0.08);
   color: #1e1e3f;
@@ -289,7 +284,7 @@ select option {
   border-bottom-left-radius: 0;
 }
 
-/* User messages */
+
 .chatbot-message.user {
   background: linear-gradient(135deg, #3b82f6, #6366f1);
   color: #fff;
@@ -297,7 +292,7 @@ select option {
   border-bottom-right-radius: 0;
 }
 
-/* Input area */
+
 #chatbot-window > div:last-child {
   display: flex;
   align-items: center;
@@ -306,7 +301,7 @@ select option {
   border-top: 1px solid rgba(0, 0, 0, 0.1);
 }
 
-/* Input field */
+
 #chatbot-input {
   flex: 1;
   border: none;
@@ -322,7 +317,7 @@ select option {
   color: #777;
 }
 
-/* Send button */
+
 #chatbot-send {
   background: linear-gradient(135deg, #3b82f6, #6366f1);
   color: white;
@@ -339,7 +334,7 @@ select option {
   transform: translateY(-2px);
 }
 
-/* Scrollbar styling */
+
 #chatbot-messages::-webkit-scrollbar {
   width: 6px;
 }
@@ -348,7 +343,7 @@ select option {
   border-radius: 4px;
 }
 
-/* Responsive */
+
 @media (max-width: 480px) {
   #chatbot-window {
     width: 90vw;
@@ -357,14 +352,13 @@ select option {
   }
 }
 
-/* Make messages appear in separate rows */
 #chatbot-messages {
   display: flex;
-  flex-direction: column; /* stack messages vertically */
-  gap: 10px; /* add space between each */
+  flex-direction: column; 
+  gap: 10px; 
 }
 
-/* Ensure messages don't sit side-by-side */
+
 .chatbot-message {
   display: inline-block;
   max-width: 80%;
@@ -375,7 +369,7 @@ select option {
   word-wrap: break-word;
 }
 
-/* Bot messages — aligned left */
+
 .chatbot-message.bot {
   align-self: flex-start;
   text-align: left;
@@ -384,7 +378,7 @@ select option {
   border-bottom-left-radius: 0;
 }
 
-/* User messages — aligned right */
+
 .chatbot-message.user {
   align-self: flex-end;
   text-align: right;
@@ -393,14 +387,59 @@ select option {
   border-bottom-right-radius: 0;
 }
 
-/* ✅ Fix background overlay on mobile view */
+
 @media (max-width: 768px) {
   body,
   .forecast-container,
   .hourly-container,
   .main-container {
-    background: #0b1120 !important; /* Use your main app background color */
+    background: #0b1120 !important; 
     background-image: none !important;
     box-shadow: none !important;
+  }
+}
+
+
+.weekly-graph {
+  background: rgba(20, 24, 50, 0.9);
+  padding: 20px;
+  border-radius: 14px;
+  margin-top: 25px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+  backdrop-filter: none !important; /* ❌ remove blur effect */
+}
+
+.weekly-graph h3 {
+  text-align: center;
+  font-size: 18px;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 30px;
+}
+
+#weeklyChart {
+  width: 100% !important;
+  height: 250px !important;
+  background: transparent;
+  display: block;
+}
+
+.chartjs-chart text,
+canvas {
+  color: #fff !important;
+}
+
+.chartjs-render-monitor {
+  filter: none !important;
+}
+
+canvas {
+  image-rendering: pixelated;
+}
+
+@media (max-width: 768px) {
+  #weeklyChart {
+    height: 220px !important;
   }
 }
