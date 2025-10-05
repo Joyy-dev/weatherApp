@@ -267,7 +267,8 @@ select option {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  background: #1e1e3f;
+  /* background: #1e1e3f; */
+  background: white;
 }
 
 /* Message bubbles */
@@ -378,7 +379,7 @@ select option {
 .chatbot-message.bot {
   align-self: flex-start;
   text-align: left;
-  background-color: rgba(255, 255, 255, 0.08);
+  background-color: #1e1e3f;
   color: #e5e7eb;
   border-bottom-left-radius: 0;
 }
@@ -392,5 +393,14 @@ select option {
   border-bottom-right-radius: 0;
 }
 
-
-
+/* ✅ Fix background overlay on mobile view */
+@media (max-width: 768px) {
+  body,
+  .forecast-container,
+  .hourly-container,
+  .main-container {
+    background: #0b1120 !important; /* Use your main app background color */
+    background-image: none !important;
+    box-shadow: none !important;
+  }
+}
